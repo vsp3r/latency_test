@@ -63,7 +63,7 @@ class HyperliquidConnector:
         t2 = time.perf_counter_ns()
         data = orjson.loads(message)
         try:
-            if 'channel' in data:
+            if 'channel' in data and data['channel'] == 'l2Book':
                 coin = data['data']['coin']
                 self.queues.put_nowait(('hyperliquid', coin, data['data'], ts))
                 exch_ts = data['data']['time'] * 1000
