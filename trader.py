@@ -56,7 +56,8 @@ class AutoTrader:
         })
         self.bin_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
         # self.bin_books[coin]['offset'] = self.dex_books[coin]['bp']/self.bin_books[coin]['bp']
-        print(f'BINANCE {coin[:4]}: bid:{bid_px:.3f} ask:{ask_px:.3f}. w/w = {time.perf_counter_ns() - ts}')
+        finish_time = time.perf_counter_ns()
+        print(f'BINANCE {coin[:4]}: bid:{bid_px:.3f} ask:{ask_px:.3f}. Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
 
         # if self.dex_books[coin]:
     async def process_hl(self, msg):

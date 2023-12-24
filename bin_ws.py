@@ -32,7 +32,7 @@ class BinanceConnector:
                                 for coin in self.symbols))
             while self.running:
                 message = await ws.recv()
-                air_time = time.time() * 100_000
+                air_time = time.time() * 1_000_000
                 ts = time.perf_counter_ns()
                 asyncio.create_task(self.process_data(message, air_time, ts))
 
@@ -56,14 +56,14 @@ class BinanceConnector:
     async def process_data(self, message, air_time, ts):
         data = orjson.loads(message)
         # data = json.loads(message)
-        t2 = time.time() * 100_000
+        t2 = time.time() * 1_000_000
         try:
             # Check if the keys exist in the data
             if 'e' in data and 's' in data:
                 exch_ts = data['E'] * 1000
                 coin = data['s'][:-4]
                 self.queue.put_nowait(('binance', coin, data, ts))
-                print(f'[BIN {coin[:4]}]: Exch to server: {exch_ts - air_time}. Msg to process: {air_time - t2}')
+                print(f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}. Msg to process: {t2 - air_time}')
             else:
                 pass
 
