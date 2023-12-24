@@ -5,7 +5,9 @@ import orjson
 import json
 import time
 import requests
-
+RED = '\033[91m'
+GREEN = '\033[92m'
+RESET = '\033[0m'  # Reset the color
 
 class BinanceConnector:
     def __init__(self, symbols, queues):
@@ -55,7 +57,7 @@ class BinanceConnector:
 
     async def process_data(self, message, air_time, ts):
         data = orjson.loads(message)
-        t2 = time.time() * 1_000_000
+        t2 = time.perf_counter_ns()
         # data = json.loads(message)
         try:
             # Check if the keys exist in the data
@@ -63,7 +65,7 @@ class BinanceConnector:
                 coin = data['s'][:-4]
                 self.queue.put_nowait(('binance', coin, data, ts))
                 exch_ts = data['E'] * 1000
-                print(f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2-ts)/1000}us')
+                print(RED + f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2-ts)/1000}us' + RESET)
             else:
                 pass
 

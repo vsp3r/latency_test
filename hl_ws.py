@@ -6,6 +6,9 @@ import os
 import time
 import signal
 from queue import Full
+RED = '\033[91m'
+GREEN = '\033[92m'
+RESET = '\033[0m'  # Reset the color
 
 class HyperliquidConnector:
     def __init__(self, symbols, queues):
@@ -59,7 +62,7 @@ class HyperliquidConnector:
                 coin = data['data']['coin']
                 self.queues.put_nowait(('hyperliquid', coin, data['data'], ts))
                 exch_ts = data['data']['time'] * 1000
-                print(f'[HYP {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us')
+                print(GREEN + f'[HYP {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us' + RESET)
 
             else:
                 pass

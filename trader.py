@@ -1,6 +1,9 @@
 import asyncio
 import queue
 import time
+RED = '\033[91m'
+GREEN = '\033[92m'
+RESET = '\033[0m'  # Reset the color
 
 class AutoTrader:
     def __init__(self, coins, hl_queues, bin_queues):
@@ -57,7 +60,7 @@ class AutoTrader:
         self.bin_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
         # self.bin_books[coin]['offset'] = self.dex_books[coin]['bp']/self.bin_books[coin]['bp']
         finish_time = time.perf_counter_ns()
-        print(f'HYP {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
+        print(RED + f'BIN {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)' + RESET)
 
         # if self.dex_books[coin]:
     async def process_hl(self, msg):
@@ -76,7 +79,7 @@ class AutoTrader:
         self.dex_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
         # print(f'HYPERLIQUID {coin}: bid:{bid_px} ask:{ask_px}')
         finish_time = time.perf_counter_ns()
-        print(f'HYP {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
+        print(GREEN + f'HYP {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)' + RESET)
 
 
     async def shutdown(self):
