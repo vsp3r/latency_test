@@ -15,6 +15,7 @@ class HyperliquidConnector:
         self.symbols = symbols
         self.queues = queues
         self.running = True
+        self.counter = 0
 
         self.ws_url = 'wss://api.hyperliquid.xyz/ws'
         self.exchange = 'HYPERLIQUID'
@@ -37,6 +38,7 @@ class HyperliquidConnector:
         
             while self.running:
                 message = await ws.recv()
+                self.counter +=1
                 air_time = time.time() * 1_000_000
                 ts = time.perf_counter_ns()
                 asyncio.create_task(self.process_data(message, air_time, ts))
@@ -55,14 +57,15 @@ class HyperliquidConnector:
         await ws.send(orjson.dumps(subscription_message).decode('utf-8'))
 
     async def process_data(self, message, air_time, ts):
-        data = orjson.loads(message)
         t2 = time.perf_counter_ns()
+        data = orjson.loads(message)
         try:
             if 'channel' in data:
                 coin = data['data']['coin']
                 self.queues.put_nowait(('hyperliquid', coin, data['data'], ts))
                 exch_ts = data['data']['time'] * 1000
-                print(GREEN + f'[HYP {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us' + RESET)
+                print(GREEN + f'[HYP {coin[:4]}] {self.counter}: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us' + RESET)
+
 
             else:
                 pass
@@ -73,6 +76,7 @@ class HyperliquidConnector:
 
     async def shutdown(self):
         try:
+            await self.logger.stop()
             await asyncio.gather(*(self.unsubscribe(self.ws, coin)
                                     for coin in self.symbols))
             await self.ws.close()

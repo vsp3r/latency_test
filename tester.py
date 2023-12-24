@@ -53,9 +53,9 @@ def main():
     ws_processes = []
     trader_processes = []
 
-    # bin_ws = multiprocessing.Process(target=start_ws, args=(BinanceConnector, coins, binance_queues))
-    # bin_ws.start()
-    # ws_processes.append(bin_ws)
+    bin_ws = multiprocessing.Process(target=start_ws, args=(BinanceConnector, coins, binance_queues))
+    bin_ws.start()
+    ws_processes.append(bin_ws)
 
     hl_ws = multiprocessing.Process(target=start_ws, args=(HyperliquidConnector, coins, hl_queues))
     hl_ws.start()
