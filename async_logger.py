@@ -22,7 +22,7 @@ class AsynchronousLogger:
                 try:
                     # Timeout ensures the thread doesn't block indefinitely
                     message = self.log_queue.get(timeout=1)
-                    print(message)
+                    # print(message)
                     file.write(f'{message}\n')
                     file.flush()
                 except queue.Empty:
