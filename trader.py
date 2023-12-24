@@ -57,11 +57,11 @@ class AutoTrader:
         self.bin_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
         # self.bin_books[coin]['offset'] = self.dex_books[coin]['bp']/self.bin_books[coin]['bp']
         finish_time = time.perf_counter_ns()
-        print(f'BINANCE {coin[:4]}: bid:{bid_px:.3f} ask:{ask_px:.3f}. Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
+        print(f'HYP {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
 
         # if self.dex_books[coin]:
     async def process_hl(self, msg):
-        _, coin, data = msg
+        _, coin, data, ts = msg
         levels = data['levels']
         bid_px = float(levels[0][0]['px'])
         bid_sz = float(levels[0][0]['sz']) 
@@ -73,8 +73,10 @@ class AutoTrader:
             "ask_px": ask_px,
             "ask_sz": ask_sz
         })
-        # self.dex_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
+        self.dex_books[coin]['bp'] = (bid_px*ask_sz + ask_px*bid_sz) / (ask_sz+bid_sz)
         # print(f'HYPERLIQUID {coin}: bid:{bid_px} ask:{ask_px}')
+        finish_time = time.perf_counter_ns()
+        print(f'HYP {coin[:4]}: Wire to wire: {(finish_time - ts) / 1000}us ({(finish_time - ts) / 10000000}ms)')
 
 
     async def shutdown(self):

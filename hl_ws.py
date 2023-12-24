@@ -34,9 +34,9 @@ class HyperliquidConnector:
         
             while self.running:
                 message = await ws.recv()
-                times = []
-                times.append(time.time_ns())
-                asyncio.create_task(self.process_data(message, times))
+                air_time = time.time() * 1_000_000
+                ts = time.perf_counter_ns()
+                asyncio.create_task(self.process_data(message, air_time, ts))
             # except KeyboardInterrupt:
             #     await self.shutdown(ws)
             # except Exception as e:
@@ -51,13 +51,16 @@ class HyperliquidConnector:
         }
         await ws.send(orjson.dumps(subscription_message).decode('utf-8'))
 
-    async def process_data(self, message, times):
+    async def process_data(self, message, air_time, ts):
         data = orjson.loads(message)
+        t2 = time.perf_counter_ns()
         try:
             if 'channel' in data:
                 coin = data['data']['coin']
-                times.append(time.time_ns())
-                self.queues[coin].put_nowait(('hyperliquid', coin, times, data['data']))
+                self.queues.put_nowait(('hyperliquid', coin, data['data'], ts))
+                exch_ts = data['data']['time'] * 1000
+                print(f'[HYP {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us')
+
             else:
                 pass
         except Exception as e:

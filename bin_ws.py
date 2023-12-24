@@ -55,15 +55,15 @@ class BinanceConnector:
 
     async def process_data(self, message, air_time, ts):
         data = orjson.loads(message)
-        # data = json.loads(message)
         t2 = time.time() * 1_000_000
+        # data = json.loads(message)
         try:
             # Check if the keys exist in the data
             if 'e' in data and 's' in data:
-                exch_ts = data['E'] * 1000
                 coin = data['s'][:-4]
                 self.queue.put_nowait(('binance', coin, data, ts))
-                print(f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}. Msg to process: {t2 - air_time}')
+                exch_ts = data['E'] * 1000
+                print(f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(ts-t2)/1000}us')
             else:
                 pass
 
