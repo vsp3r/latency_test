@@ -68,7 +68,7 @@ class BinanceConnector:
                 coin = data['s'][:-4]
                 self.queue.put_nowait(('binance', coin, data, ts))
                 exch_ts = data['E'] * 1000
-                print(RED + f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2-ts)/1000}us' + RESET)
+                # print(RED + f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2-ts)/1000}us' + RESET)
                 self.logger.log(f"{exch_ts},{coin},{air_time - exch_ts},{(t2-ts)/1000}")
             else:
                 pass
