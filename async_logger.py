@@ -1,7 +1,6 @@
 import threading
 import queue
 import time
-import pandas as pd
 
 class AsynchronousLogger:
     def __init__(self, log_file):
@@ -17,6 +16,7 @@ class AsynchronousLogger:
 
     def process_log_queue(self):
         """ Process log messages from the queue """
+        print("STARTED LOGGER", self.log_file)
         with open(self.log_file, 'a') as file:
             while self.running:
                 try:
