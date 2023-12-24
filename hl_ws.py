@@ -6,6 +6,7 @@ import os
 import time
 import signal
 from queue import Full
+from async_logger import AsynchronousLogger
 RED = '\033[91m'
 GREEN = '\033[92m'
 RESET = '\033[0m'  # Reset the color
@@ -23,6 +24,8 @@ class HyperliquidConnector:
 
     def start(self):
         """Starts Hyperliquid websocket. In charge of doing its job, and reporting errors"""
+        self.logger = AsynchronousLogger('hl_connector.log')
+        self.logger.log("timestamp,coin,exch_to_server,msg_to_process")
         asyncio.run(self.run())
 
     async def run(self):
@@ -65,6 +68,7 @@ class HyperliquidConnector:
                 self.queues.put_nowait(('hyperliquid', coin, data['data'], ts))
                 exch_ts = data['data']['time'] * 1000
                 print(GREEN + f'[HYP {coin[:4]}] {self.counter}: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2 - ts)/1000}us' + RESET)
+                self.logger.log(f"{exch_ts},{coin},{air_time - exch_ts},{(t2-ts)/1000}")
 
 
             else:

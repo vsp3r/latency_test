@@ -5,6 +5,7 @@ import orjson
 import json
 import time
 import requests
+from async_logger import AsynchronousLogger
 RED = '\033[91m'
 GREEN = '\033[92m'
 RESET = '\033[0m'  # Reset the color
@@ -21,6 +22,8 @@ class BinanceConnector:
     
     def start(self):
         """Starts Binance websocket. In charge of doing its job, and reporting errors"""
+        self.logger = AsynchronousLogger('bin_connector.log')
+        self.logger.log("timestamp,coin,exch_to_server,msg_to_process")
         asyncio.run(self.run())
 
     async def run(self):
@@ -56,8 +59,8 @@ class BinanceConnector:
         # _ = await ws.recv() # drop first message
 
     async def process_data(self, message, air_time, ts):
-        data = orjson.loads(message)
         t2 = time.perf_counter_ns()
+        data = orjson.loads(message)
         # data = json.loads(message)
         try:
             # Check if the keys exist in the data
@@ -66,6 +69,7 @@ class BinanceConnector:
                 self.queue.put_nowait(('binance', coin, data, ts))
                 exch_ts = data['E'] * 1000
                 print(RED + f'[BIN {coin[:4]}]: Exch to server: {air_time - exch_ts}us ({(air_time-exch_ts)/1000}ms). Msg to process: {(t2-ts)/1000}us' + RESET)
+                self.logger.log(f"{exch_ts},{coin},{air_time - exch_ts},{(t2-ts)/1000}")
             else:
                 pass
 
